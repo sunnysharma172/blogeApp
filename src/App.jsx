@@ -1,43 +1,49 @@
-import React,{ useEffect, useState } from 'react'
-import './App.css'
-import { useDispatch} from "react-redux"
-import authService  from './appwrite/auth';
-import { login, logout } from './store/authSlice';
-import {Footer,Header} from './components';
-import {Outlet} from 'react-router-dom'
+import React from 'react';
+import './App.css';
+import { Footer, Header } from './components';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
+import useAuthStore from './store/authStore';
+import Signup from './pages/Signup';
+import Login from './pages/login';
+
+// Placeholder components for missing pages
+const Home = () => <div>Home Page</div>;
+const Blogs = () => <div>Blogs Page</div>;
+const Contact = () => <div>Contact Page</div>;
+const NoPage = () => <div>404 Not Found</div>;
+const Layout = () => (
+  <div>
+    <Header />
+    <Outlet />
+    <Footer />
+  </div>
+);
 
 function App() {
-  const [loading, setLoading] = useState(true);
-  const dispatch = useDispatch();
+  const { userData } = useAuthStore();
+  const location = useLocation();
 
-  useEffect(() => {
-    authService
-      .getCurrentUser()
-      .then((userData) => {
-        if (userData) {
-          dispatch(login({userData}))
+  // Allow access to /signup even if not authenticated
+  if (!userData && location.pathname !== '/signup' && location.pathname !== '/login') {
+    return <Navigate to="/signup" replace />;
+  }else{
+    <Navigate to="/" replace />
+  }
 
-        }else{
-          dispatch(logout())
-        }
-      })
-      .finally(() => setLoading(false))
-
-  },[])
-
- return !loading ? (
-  <div className='min-h-screen bg-gray-100 flex items-center justify-center'>
-    <div className=' w-full block'>
-      <Header/>
-      <main>
-        {Outlet}
-      </main>
-      <Footer/>
+  return (
+    <div className="w-full min-h-screen bg-gray-100">
+      <Routes>
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="blogs" element={<Blogs />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="*" element={<NoPage />} />
+        </Route>
+      </Routes>
     </div>
-    </div>
- ) : null
+  );
 }
 
-export default App
-
-
+export default App;
