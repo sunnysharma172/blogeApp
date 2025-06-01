@@ -11,14 +11,14 @@
 // export default useAuthStore;
 
 
-             //sec methd for redux toolkit
+             //sec methed for redux toolkit
 
 
 import { createSlice } from "@reduxjs/toolkit";
 
 const authSlice = createSlice( {
   name: 'auth',
-  // initialState,
+  initialState,
   reducers:{
     login: ( state, action ) => {
       state.status = true;
